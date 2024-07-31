@@ -13,8 +13,8 @@
 </head>
 <body>
 
-
-    <svg
+  <div style="display: flex; background-color: #c9e4c9; flex-flow:column;min-width: 800px;">
+     <svg
     width="210mm"
     height="297mm"
     viewBox="0 0 210 297"
@@ -3113,74 +3113,115 @@
 
           <button id="fetchTokenBtn" style="height: 50px; font-size: 20px;" >start fetching</button>
           <div id="result" style="font-size: 20px;"></div>
+  </div>
+
+   
     <Script>
             
         let level = document.getElementById("tank_level");
         let cutout = document.getElementById("tank_cutout");
         let maxHeight=cutout.getAttribute("height") ;
        
-        let pump1_speed = document.getElementById("tspan17");
-        let pump1_current = document.getElementById("tspan18");
-        let pump1_power = document.getElementById("tspan19");
+        let pump1_speed_txt = document.getElementById("tspan17");
+        let pump1_current_txt = document.getElementById("tspan18");
+        let pump1_power_txt = document.getElementById("tspan19");
 
 
-        setInterval(() => {
-            let randomLevel = Math.random() * maxHeight; // Generate a random height between 0 and maxheight
+        function updateValues(){
+           let randomLevel = Math.random() * maxHeight; // Generate a random height between 0 and maxheight
            
-            let randomCurrent = Math.random() * 10;
-            let randomSpeed = Math.random() * 60;
-            let randomPower = Math.random() * 100;
+            let pump1_Current = dataReceived.td1;
+            let pump1_Speed = dataReceived.td2;
+            let pump1_Power =dataReceived.td3;
 
             level.style.height = randomLevel+ 'px'; // Set the height in pixels
 
-            pump1_speed.innerHTML=randomSpeed.toFixed(2);
-            pump1_current.innerHTML=(Number(maxHeight)-randomLevel).toFixed(2);
-            pump1_power.innerHTML=randomPower.toFixed(2);
-
-
-        }, 2000); 
+            pump1_speed_txt.innerHTML=pump1_Speed.toFixed(2);
+            pump1_current_txt.innerHTML=pump1_Current.toFixed(2);
+            pump1_power_txt.innerHTML=pump1_Power.toFixed(2);
+        }
+      
 
     </Script>
 
-    <Script>
+<script>
+  let token = null;
+  let dataInterval = null;
+  let dataReceived={}
 
-       let token={} ;
-        document.getElementById('fetchTokenBtn').addEventListener('click', () => {
-            // Define the URL and payload
-            const url = 'https://node-api-ruby-five.vercel.app/companyName/Area/api/login';
-            const payload = {
-                username: 'admin',
-                password: 'password'
-            };
+  document.getElementById('fetchTokenBtn').addEventListener('click', () => {
+      // Define the URL and payload for token fetch
+      const tokenUrl = 'https://node-api-ruby-five.vercel.app/companyName/Area/api/login';
+      const payload = {
+          username: 'admin',
+          password: 'password'
+      };
 
-            // Send the POST request
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Handle the response data
-             
-               token= data.token;
-                 document.getElementById('result').textContent = token; 
-                // document.getElementById('result').textContent = `Token: ${data.token}`; 
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-                document.getElementById('result').textContent = `Error: ${error.message}`;
-            });
-        });
-    </script>
+      // Send the POST request to fetch the token
+      fetch(tokenUrl, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          token = data.token;
+          document.getElementById('result').textContent = `Token: ${token}`;
 
+          // If data collection is already in progress, clear the interval first
+          if (dataInterval) {
+              clearInterval(dataInterval);
+          }
+
+          // Set up the interval to fetch data every 5 seconds
+          dataInterval = setInterval(() => {
+              fetchDataWithToken(token);
+          }, 5000);
+      })
+      .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
+          document.getElementById('result').textContent = `Error: ${error.message}`;
+      });
+  });
+
+  function fetchDataWithToken(token) {
+      const dataUrl = 'https://node-api-ruby-five.vercel.app/companyName/Area/api/data';
+
+      fetch(dataUrl, {
+          method: 'GET',
+          headers: {
+           
+             'Authorization': token
+          }
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          // Handle the response data
+          console.log('Fetched data:', data);
+          // Optionally display the data
+          document.getElementById('result').textContent = `Data: ${JSON.stringify(data)}`;
+          dataReceived=data ;
+          updateValues();
+          
+      })
+      .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
+          document.getElementById('result').textContent = `Error: ${error.message}`;
+      });
+  }
+</script>
    
 </body>
 </html>
