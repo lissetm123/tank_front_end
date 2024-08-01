@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
     <title>Document</title>
 <style>
     
@@ -44,14 +46,28 @@
         .yes_comm {
             background-color: green;
         }
+
+        @media (max-width: 600px) {
+    body {
+        font-size: 14px;
+    }
+
+    .container {
+        background-color: #99ffff;
+        min-width: 100%;
+        flex-direction: column;
+        padding: 10px;
+    }
+}
+
 </style>
 </head>
 <body>
-
-  <div style="display: flex; background-color: #c9e4c9; flex-flow:column;min-width: 800px;">
-    <div id="comm_bar" class="no_comm" >'' </div>
+  <div class="container">
+  <!-- <div style="display: flex; background-color: #c9e4c9; flex-flow:column;min-width: 800px;"> -->
+      <div id="comm_bar" class="no_comm" >'' </div>
     
-<svg
+      <svg
 width="210mm"
 height="297mm"
 viewBox="0 0 210 297"
@@ -3796,7 +3812,7 @@ xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
   </div>
 
    
-  <Script>
+    <Script>
             
         let level = document.getElementById("tank_level");
         let cutout = document.getElementById("tank_cutout");
@@ -3893,10 +3909,8 @@ xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
   }
 
          function updateValues(){
-          
            let randomLevel = Math.random() * maxHeight; // Generate a random height between 0 and maxheight
-           level.style.height = randomLevel+ 'px'; // Set the height in pixels
-
+           
             let pump1_Current = dataReceived.pump1.current;
             let pump1_Speed = dataReceived.pump1.speed;
             let pump1_Power =dataReceived.pump1.power;
@@ -3905,7 +3919,7 @@ xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
             let pump2_Speed = dataReceived.pump2.speed;
             let pump2_Power =dataReceived.pump2.power;
 
-            
+            level.style.height = randomLevel+ 'px'; // Set the height in pixels
 
             pump1_speed_txt.innerHTML=pump1_Speed.toFixed(2);
             pump1_current_txt.innerHTML=pump1_Current.toFixed(2);
